@@ -34,7 +34,7 @@ _*Optional*: install Git. You can skip this step by manually downloading this so
 2. Change directories to the location you downloaded this software. If you saved it in your ``Downloads`` folder for example, execute the following command:
 
     ```bash
-    cd ~/Downloads/rsaf
+    cd ~/Downloads/rsaf/rsaf
     ```
 
 4. Select a miniSEED file (``infile.ms`` in this case) and convert it to ASCII text (``asciidata.txt``) using the [``packetize.py`` script](#packetizepy).
