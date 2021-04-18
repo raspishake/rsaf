@@ -1,6 +1,8 @@
 # rsaf - Raspberry Shake archive forwarder
 _conversion of archived miniSEED data to Raspberry Shake UDP-formatted ASCII, and forwarding of that data via UDP_
 
+This software allows you to send archived Raspberry Shake data in UDP packets that are formatted identically to those sent by the Shake in real-time.
+
 `rsaf` contains two tools:
 - **packetize.py** - "packetize" data by converting from RS miniSEED into an ASCII (text) file formatted in the style of RS UDP packets
 - **run.py** - forward packetized RS data to a designated IP/port destination
