@@ -81,3 +81,7 @@ Flags (all required):
 [-d, --dest] destination IP address (four 1-3 digit numbers separated by periods)
 [-p, --port] destination port (a 1-5 digit number)
 ```
+
+## rsudp
+
+This software is a standalone adaptation of some tools found in [rsudp](https://github.com/raspishake/rsudp). Both are built by Ian Nesbitt, University of Maine.
