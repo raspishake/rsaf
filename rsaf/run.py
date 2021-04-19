@@ -1,13 +1,14 @@
-import os, sys
+import os, sys, getopt
 from threading import Thread, Timer
 import socket as s
-from rsudp import printM, printW, helpers
+from rsudp import printM, printW, printE, helpers, start_logging, add_debug_handler
 import rsudp.raspberryshake as rs
 import time
-from queue import Empty
+from queue import Queue, Empty
+debug = True
 
 
-class TestData(Thread):
+class RSAF(Thread):
 	'''
 	.. versionadded:: 0.4.3
 	A simple module that reads lines formatted as Raspberry Shake UDP packets
@@ -21,7 +22,7 @@ class TestData(Thread):
 	:param port: network port to pass UDP data to (at ``localhost`` address)
 	:type port: str or int
 	'''
-	def __init__(self, q, data_file, port):
+	def __init__(self, q, inf, dest, port):
 		"""
 		Initializes the data supplier thread.
 		"""
@@ -111,7 +112,7 @@ class TestData(Thread):
 		while self.alive:
 			try:
 				q = self._getq()
-				if q.decode('utf-8') in 'ENDTEST':
+				if q.decode('utf-8') in helpers.msg_term():
 					self.alive = False
 					break
 			except Empty:
@@ -122,3 +123,74 @@ class TestData(Thread):
 		self.sock.sendto(helpers.msg_term(), (self.addr, self.port))
 		printW('Exiting.', self.sender, announce=False)
 		sys.exit()
+
+def main():
+	'''
+	Loads settings to start the main client.
+	Supply -h from the command line to see help text.
+	'''
+	if debug:
+		add_debug_handler()
+	start_logging(logname='rsaf.log')
+	hlp_txt='''
+###########################################
+##     R A S P B E R R Y  S H A K E      ##
+##           Archive Forwarder           ##
+##            by Ian Nesbitt             ##
+##            GNU GPLv3 2021             ##
+##                                       ##
+## Forward archived Shake data via UDP   ##
+## from RS UDP-packet-formatted ASCII    ##
+## text to IP/port network locations.    ##
+##                                       ##
+##  Requires:                            ##
+##  - rsudp								 ##
+##                                       ##
+###########################################
+Usage: python run.py -i FILE -d IP.ADR.OF.DST -p PORT
+where := {
+    -i | --infile
+            location of the input text file
+    -d | --dest
+            destination IP address (four 1-3 digit numbers
+			separated by periods; example: 192.168.1.30)
+    -p | --port
+            destination port (a 1-5 digit number)
+    }
+'''
+
+	try:
+		opts = getopt.getopt(sys.argv[1:], 'hi:d:p:',
+			['help', 'infile=', 'dest=', 'port=']
+			)[0]
+	except Exception as e:
+		printE('%s' % e)
+		print(hlp_txt)
+
+	inf, dest, port = False, False, False
+	for opt, arg in opts:
+		if opt in ('-h', '--help'):
+			print(hlp_txt)
+		if opt in ('-i', '--infile='):
+			inf = arg
+		if opt in ('-d', '--dest='):
+			dest = arg
+		if opt in ('-p', '--port='):
+			port = arg
+
+	if inf and dest and port:
+		q = Queue(rs.qsize)
+		t = RSAF(q=q, inf=inf, dest=dest, port=port)
+		printM('Transmitting data to %s:%s from %s...'% (dest, port, inf))
+		t.start()
+		try:
+			while t.alive:
+				time.sleep(0.1)
+		except KeyboardInterrupt:
+			printM('Got interrupt keystroke. Ending transmission.')
+			q.put(helpers.msg_term())
+	else:
+		print(hlp_txt)
+
+if __name__ == '__main__':
+	main()

@@ -47,12 +47,41 @@ def main():
 	This function reads command line arguments, then calls
 	:py:func:`rsar.packetize.packetize` with those arguments.
 	'''
+
+	hlp_txt='''
+###########################################
+##     R A S P B E R R Y  S H A K E      ##
+##          Archive Packetizer           ##
+##            by Ian Nesbitt             ##
+##            GNU GPLv3 2021             ##
+##                                       ##
+## Convert archived Shake data from      ##
+## from several common seismic formats   ##
+## to RS UDP-packet-formatted ASCII.     ##
+##                                       ##
+##  Requires:                            ##
+##  - obspy								 ##
+##                                       ##
+###########################################
+Usage: python run.py -i FILE -d IP.ADR.OF.DST -p PORT
+where := {
+	-h | --help
+			display this help message (optional)
+    -i | --infile
+            input seismic data file location
+    -o | --outfile
+            output text file location
+    }
+'''
+
 	inf, outf = False, False
-	opts = getopt.getopt(sys.argv[1:], 'i:o:',
-			['in=', 'out=',]
+	opts = getopt.getopt(sys.argv[1:], 'hi:o:',
+			['help', 'in=', 'out=',]
 			)[0]
 
 	for opt, arg in opts:
+		if opt in ('-h', '--help'):
+			print(help_txt)
 		if opt in ('-i', '--in='):
 			inf = arg
 		if opt in ('-o', '--out='):
@@ -60,7 +89,7 @@ def main():
 	if inf and outf:
 		packetize(inf=inf, outf=outf)
 	else:
-		print('Usage: packetize.py -i infile.ms -o testdata')
+		print(hlp_txt)
 
 if __name__ == '__main__':
 	main()
