@@ -33,6 +33,6 @@ setuptools.setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "Natural Language :: English",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
     ],
 )
