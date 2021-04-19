@@ -9,21 +9,22 @@ This software allows you to send archived Raspberry Shake data in UDP packets th
 
 ## Installation
 
-This program is small but depends on other software. Installing [rsudp](https://github.com/raspishake/rsudp) will meet most of those dependencies.
+This program is small but depends on other software. Installing [rsudp](https://github.com/raspishake/rsudp) will meet those dependencies.
 
 1. Install [rsudp](https://github.com/raspishake/rsudp) for the operating system you're using (instructions are [here](https://raspishake.github.io/rsudp/installing.html)) prior to using this software.
-
-_*Optional*: install Git. You can skip this step by manually downloading this software and extracting it (click on the green 'Code' button in the top right of this page, and click on 'Download ZIP'._
-
-2. Make sure you have [Git](https://git-scm.com/downloads) installed. Some machines come with Git, but some may need an installation
-3. Clone this software by doing the following:
+2. In a new terminal window, type the following to activate the rsudp environment:
 
     ```bash
-    cd ~/Downloads
-    git clone https://github.com/raspishake/rsaf
+    conda activate rsudp
     ```
 
-## Instructions
+3. Install this software by doing the following (rsudp must be installed first):
+
+    ```bash
+    pip install rsaf
+    ```
+
+## Instructions to run
 
 1. In a terminal window, type the following to activate the rsudp environment:
 
@@ -31,50 +32,44 @@ _*Optional*: install Git. You can skip this step by manually downloading this so
     conda activate rsudp
     ```
 
-2. Change directories to the location you downloaded this software. If you saved it in your ``Downloads`` folder for example, execute the following command:
+2. Select a miniSEED file (``infile.ms`` in this case) and convert it to ASCII text (``asciidata.txt``) using the [``packetize`` script](#packetize).
 
     ```bash
-    cd ~/Downloads/rsaf/rsaf
+    packetize -i infile.ms -o asciidata.txt
     ```
 
-4. Select a miniSEED file (``infile.ms`` in this case) and convert it to ASCII text (``asciidata.txt``) using the [``packetize.py`` script](#packetizepy).
+3. Obtain the IP address and port of the computer you'd like to send packets to, then run the [main script](#run-rsaf) on the ASCII text file.
 
     ```bash
-    python packetize.py -i infile.ms -o asciidata.txt
-    ```
-
-5. Obtain the IP address and port of the computer you'd like to send packets to, then run the [main script](#runpy) on the ASCII text file.
-
-    ```bash
-    python run.py -i asciidata.txt -d 192.168.1.110 -p 8888
+    rsaf -i asciidata.txt -d 192.168.1.110 -p 8888
     ```
 
 ## Brief documentation
 
-### packetize.py
+### Packetize
 
-This script converts archived data from a Raspberry Shake (most commonly in miniSEED format) into Raspberry Shake UDP-formatted ASCII text and saves it in a text file. The input file must be valid seismic data from a Raspberry Shake, but it does not necessarily need to be in miniSEED format.
+This one-and-done script converts archived data from a Raspberry Shake (most commonly in miniSEED format) into Raspberry Shake UDP-formatted ASCII text and saves it in a text file. The input file must be valid seismic data from a Raspberry Shake, but it does not necessarily need to be in miniSEED format.
 
 Usage:
 
 ```bash
-python packetize.py -i infile.ms -o asciidata.txt
+packetize -i infile.ms -o asciidata.txt
 
 Flags (all required):
 [-i, --infile] input seismic data file
 [-o, --outfile] output text file
 ```
 
-### run.py
+### Run rsaf
 
-To run this script, you'll need to know the destination computer's IP address. Most computers will show this in network settings. On linux, you can use the command ``hostname -I`` to do this without having to navigate a settings dialog.
+To run rsaf, you'll need to know the destination computer's IP address. Most computers will show this in network settings. On linux, you can use the command ``hostname -I`` to do this without having to navigate a settings dialog.
 
 _Note that some school networks will not allow this type of data transmission. This type of data transmission will also only work if you're on the same network as the destination computer, unless you have port forwarding configured in the receiving network's router._
 
 Usage:
 
 ```bash
-python run.py -i asciidata.txt -d 192.168.1.110 -p 8888
+rsaf -i asciidata.txt -d 192.168.1.110 -p 8888
 
 Flags (all required):
 [-i, --infile] input text file
