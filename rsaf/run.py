@@ -27,7 +27,7 @@ class RSAF(Thread):
         Initializes the data supplier thread.
         """
         super().__init__()
-        self.sender = 'TestData'
+        self.sender = 'RSAF thread'
         self.data_file = inf
         self.port = port
         self.addr = dest
@@ -37,8 +37,9 @@ class RSAF(Thread):
         self.sock = False
         self.alive = True
 
-        printW('Sending test data from %s'
-               % self.data_file, sender=self.sender, announce=False)
+        sender = 'RSAF init'
+        printM('Data file: %s'
+               % self.data_file, sender=sender, announce=False)
 
     def send(self):
         '''
@@ -53,7 +54,7 @@ class RSAF(Thread):
         '''
         l = self.f.readline()
         if ('TERM' in l.decode('utf-8')) or (l.decode('utf-8') == ''):
-            printM('End of file.', self.sender)
+            printM('End of file.', sender=self.sender)
             self.alive = False
         else:
             ts = rs.getTIME(l)
@@ -101,11 +102,11 @@ class RSAF(Thread):
 
         self.speed = rs.getTIME(l2) - rs.getTIME(l)
 
-        printW('Opening test socket...', sender=self.sender, announce=False)
+        printM('Opening test socket...', sender=self.sender, announce=False)
         socket_type = s.SOCK_DGRAM if os.name in 'nt' else s.SOCK_DGRAM | s.SO_REUSEADDR
         self.sock = s.socket(s.AF_INET, socket_type)
 
-        printW('Sending data to %s:%s every %s seconds'
+        printM('Sending data to %s:%s every %s seconds'
                % (self.addr, self.port, self.speed),
                sender=self.sender, announce=False)
 
@@ -121,7 +122,7 @@ class RSAF(Thread):
 
         self.f.close()
         self.sock.sendto(helpers.msg_term(), (self.addr, self.port))
-        printW('Exiting.', self.sender, announce=False)
+        printM('Exiting.', sender=self.sender, announce=False)
         sys.exit()
 
 def main():
@@ -181,13 +182,15 @@ where := {
     if inf and dest and port:
         q = Queue(rs.qsize)
         t = RSAF(q=q, inf=inf, dest=dest, port=port)
-        printM('Transmitting data to %s:%s from %s...'% (dest, port, inf))
+        printW('Starting RSAF thread. Press CTRL+C to quit at any time.',
+               sender='main thread', announce=False)
         t.start()
         try:
             while t.alive:
                 time.sleep(0.1)
         except KeyboardInterrupt:
-            printM('Got interrupt keystroke. Ending transmission.')
+            printW('Got interrupt keystroke. Ending transmission.',
+                   sender='main thread', announce=False)
             q.put(helpers.msg_term())
     else:
         print(hlp_txt)
