@@ -69,7 +69,7 @@ Flags (all required):
 
 To run this script, you'll need to know the destination computer's IP address. Most computers will show this in network settings. On linux, you can use the command ``hostname -I`` to do this without having to navigate a settings dialog.
 
-_Note that some school networks will also not allow this type of data transmission. This type of data transmission will only work if you're on the same network as the destination computer, unless you have port forwarding configured in the receiving network's router._
+_Note that some school networks will not allow this type of data transmission. This type of data transmission will also only work if you're on the same network as the destination computer, unless you have port forwarding configured in the receiving network's router._
 
 Usage:
 
