@@ -28,9 +28,9 @@ class RSAF(Thread):
         """
         super().__init__()
         self.sender = 'TestData'
-        self.data_file = data_file
+        self.data_file = inf
         self.port = port
-        self.addr = 'localhost'
+        self.addr = dest
         self.speed = 0
         self.pos = 0
         self.queue = q
@@ -112,7 +112,7 @@ class RSAF(Thread):
         while self.alive:
             try:
                 q = self._getq()
-                if q.decode('utf-8') in helpers.msg_term():
+                if q.decode('utf-8') in 'TERM':
                     self.alive = False
                     break
             except Empty:
@@ -176,7 +176,7 @@ where := {
         if opt in ('-d', '--dest='):
             dest = arg
         if opt in ('-p', '--port='):
-            port = arg
+            port = int(arg)
 
     if inf and dest and port:
         q = Queue(rs.qsize)
