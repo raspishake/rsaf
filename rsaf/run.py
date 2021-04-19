@@ -130,9 +130,6 @@ def main():
     Loads settings to start the main client.
     Supply -h from the command line to see help text.
     '''
-    if debug:
-        add_debug_handler()
-    start_logging(logname='rsaf.log')
     hlp_txt='''
 ###########################################
 ##     R A S P B E R R Y  S H A K E      ##
@@ -145,10 +142,11 @@ def main():
 ## text to IP/port network locations.    ##
 ##                                       ##
 ##  Requires:                            ##
-##  - rsudp								 ##
+##  - rsudp                              ##
 ##                                       ##
 ###########################################
-Usage: python run.py -i FILE -d IP.ADR.OF.DST -p PORT
+
+Usage: rsaf -i FILE -d IP.ADR.OF.DST -p PORT
 where := {
     -i | --infile
             location of the input text file
@@ -160,40 +158,52 @@ where := {
     }
 '''
 
+    inf, dest, port, phelp = False, False, False, False
+    sender = 'main thread'
+
     try:
         opts = getopt.getopt(sys.argv[1:], 'hi:d:p:',
             ['help', 'infile=', 'dest=', 'port=']
             )[0]
-    except Exception as e:
-        printE('%s' % e)
-        print(hlp_txt)
+        for opt, arg in opts:
+            if opt in ('-h', '--help'):
+                print(hlp_txt)
+                phelp = True
+            if opt in ('-i', '--infile='):
+                inf = arg
+            if opt in ('-d', '--dest='):
+                dest = arg
+            if opt in ('-p', '--port='):
+                port = int(arg)
 
-    inf, dest, port = False, False, False
-    for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            print(hlp_txt)
-        if opt in ('-i', '--infile='):
-            inf = arg
-        if opt in ('-d', '--dest='):
-            dest = arg
-        if opt in ('-p', '--port='):
-            port = int(arg)
+    except Exception as e:
+        start_logging(logname='rsaf.log')
+        if debug:
+            add_debug_handler()
+        printE('%s' % e, announce=True, sender=sender)
+        print(hlp_txt)
+        phelp = True
 
     if inf and dest and port:
+        if debug:
+            add_debug_handler()
+        start_logging(logname='rsaf.log')
+
         q = Queue(rs.qsize)
         t = RSAF(q=q, inf=inf, dest=dest, port=port)
         printW('Starting RSAF thread. Press CTRL+C to quit at any time.',
-               sender='main thread', announce=False)
+               sender=sender, announce=False)
         t.start()
         try:
             while t.alive:
                 time.sleep(0.1)
         except KeyboardInterrupt:
             printW('Got interrupt keystroke. Ending transmission.',
-                   sender='main thread', announce=False)
+                   sender=sender, announce=False)
             q.put(helpers.msg_term())
     else:
-        print(hlp_txt)
+        if not phelp:
+            print(hlp_txt)
 
 if __name__ == '__main__':
     main()

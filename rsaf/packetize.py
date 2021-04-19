@@ -60,10 +60,11 @@ def main():
 ## to RS UDP-packet-formatted ASCII.     ##
 ##                                       ##
 ##  Requires:                            ##
-##  - obspy								 ##
+##  - obspy                              ##
 ##                                       ##
 ###########################################
-Usage: python run.py -i FILE -d IP.ADR.OF.DST -p PORT
+
+Usage: packetize -i FILE -o FILE
 where := {
     -h | --help
             display this help message (optional)
@@ -74,14 +75,15 @@ where := {
     }
 '''
 
-    inf, outf = False, False
+    inf, outf, phelp = False, False, False
     opts = getopt.getopt(sys.argv[1:], 'hi:o:',
             ['help', 'in=', 'out=',]
             )[0]
 
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            print(help_txt)
+            print(hlp_txt)
+            phelp = True
         if opt in ('-i', '--in='):
             inf = arg
         if opt in ('-o', '--out='):
@@ -89,7 +91,8 @@ where := {
     if inf and outf:
         packetize(inf=inf, outf=outf)
     else:
-        print(hlp_txt)
+        if not phelp:
+            print(hlp_txt)
 
 if __name__ == '__main__':
     main()
